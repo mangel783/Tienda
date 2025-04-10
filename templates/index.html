@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Online - ElectroTienda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900 font-sans">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-3xl font-bold hover:text-gray-200 transition-colors">ElectroTienda</a>
+            <nav>
+                <a href="{{ url_for('carrito') }}" class="text-lg font-semibold hover:underline mx-4">Carrito</a>
+                <a href="#" class="text-lg font-semibold hover:underline mx-4">Ofertas</a>
+                <a href="#" class="text-lg font-semibold hover:underline mx-4">Contactos</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto py-10 px-4">
+        <section id="productos">
+            <h2 class="text-4xl font-semibold text-center mb-6 text-gray-800">Nuestros Productos</h2>
+            <div id="productos-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
+                {% for producto in productos %}
+                    <div class="producto bg-white rounded-lg shadow-lg p-4 flex flex-col items-center transition-transform transform hover:scale-105 hover:shadow-2xl duration-300 ease-in-out">
+                        <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover rounded-md mb-4">
+                        <h2 class="text-lg font-semibold mb-2 text-gray-800">{{ producto.nombre }}</h2>
+                        <p class="text-sm text-gray-500 mb-4 text-center">{{ producto.descripcion }}</p>
+                        <p class="text-xl font-bold mb-4 text-gray-800">$ {{ producto.precio }} MXN</p>
+                        <button class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50" onclick="agregarAlCarrito({{ producto.id }})">Agregar al carrito</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-10">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 ElectroTienda. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- JS for adding to cart -->
+    <script>
+        async function agregarAlCarrito(productoId) {
+            const respuesta = await fetch('/agregar_carrito', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: productoId, cantidad: 1 })
+            });
+
+            const data = await respuesta.json();
+            if (data.success) {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        }
+    </script>
+</body>
+
+</html>
