@@ -8,9 +8,9 @@ app.secret_key = 'clave-super-secreta'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'tu_email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'tu_contraseña_de_app'
-app.config['MAIL_DEFAULT_SENDER'] = 'tu_email@gmail.com'
+app.config['MAIL_USERNAME'] = 'angelito123549@gmail.com'
+app.config['MAIL_PASSWORD'] = 'jmoe jyqp hbur cvlp'
+app.config['MAIL_DEFAULT_SENDER'] = 'angelito123549@gmail.com'
 
 mail = Mail(app)
 
@@ -115,25 +115,28 @@ def eliminar_producto(id):
 
 @app.route('/finalizar-compra', methods=['POST'])
 def finalizar_compra():
-    datos = request.get_json()
-    carrito = datos.get('carrito', [])
-    email = datos.get('email')
+    email = request.form.get('email')
+    carrito = session.get('carrito', [])
 
     if not carrito or not email:
-        return jsonify({'error': 'Carrito o email faltante'}), 400
+        return "Carrito o email faltante", 400
 
-    productos = '\n'.join([f"- {item['nombre']}: ${item['precio']} MXN" for item in carrito])
-    total = sum(item['precio'] for item in carrito)
-    mensaje = f"\u00a1Gracias por tu compra!\n\nProductos:\n{productos}\n\nTotal: ${total} MXN"
+    productos = '\n'.join([f"- {item['nombre']}: ${item['precio']} x {item['cantidad']}" for item in carrito])
+    total = sum(item['precio'] * item['cantidad'] for item in carrito)
+
+    mensaje = f"¡Gracias por tu compra!\n\nProductos:\n{productos}\n\nTotal: ${total} MXN"
 
     try:
         msg = Message('Confirmación de tu compra - ElectroTienda', recipients=[email])
         msg.body = mensaje
         mail.send(msg)
-        return jsonify({'mensaje': 'Compra finalizada, correo enviado ✅'})
+        session['carrito'] = []  # limpiar carrito tras compra
+        flash("¡Compra completada! Revisa tu correo.")
+        return redirect(url_for('carrito'))
     except Exception as e:
         print(e)
-        return jsonify({'error': 'No se pudo enviar el correo'}), 500
+        return "No se pudo enviar el correo", 500
+
     
 
 if __name__ == '__main__':
